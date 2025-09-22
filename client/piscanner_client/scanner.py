@@ -26,7 +26,7 @@ class PIScannerClient:
         self._stepper_pins = stepper_pins
 
         self._button = Button(self._start_button_pin, pull_up=False)
-        # self._led = LED(self._led_pin)
+        self._led = LED(self._led_pin)
         self._stepper_controller = Stepper28BYJ_48Controller(*self._stepper_pins)
         self._webcam_controller = WebcamController()
         print("GPIO pins initialized successfully!")

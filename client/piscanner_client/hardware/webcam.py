@@ -13,6 +13,9 @@ class WebcamController:
 
     def __init__(self, capture_dir: str = "/tmp/piscanner/captures") -> None:
         self._cam = cv2.VideoCapture(0)
+        _ = self._cam.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+        _ = self._cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+
         self._capture_dir = capture_dir
         os.makedirs(self._capture_dir, exist_ok=True)
 
@@ -25,4 +28,5 @@ class WebcamController:
         file_name = f"{self._capture_dir}/cap_{int(time.time())}.jpg"
         _ = cv2.imwrite(file_name, frame)
 
+        print(f"Image saved to {file_name}")
         return file_name
