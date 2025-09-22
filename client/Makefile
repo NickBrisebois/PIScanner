@@ -17,17 +17,13 @@ help:
 
 .PHONY: setup
 setup:  # Setup venv
-	python3 -m venv $(VENV_DIR)
+	# python3 -m venv $(VENV_DIR)
 	$(PIP) install --upgrade pip setuptools wheel
 	$(PIP) install -r requirements.txt
 
 .PHONY: dev-setup
 dev-setup:  ## Setup Development
 	$(PIP) install -r requirements-dev.txt
-	$(PYTHON) install -e .
-
-.PHONY: dev-install
-dev-install:  ## Install module piscanner.client
 	$(PYTHON) install -e .
 
 .PHONY: dev-run

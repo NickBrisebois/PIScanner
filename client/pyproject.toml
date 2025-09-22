@@ -22,7 +22,8 @@ classifiers = [
 ]
 dependencies = [
     "gpiozero",
-    "opencv-python"
+    "lgpio",
+    "opencv-python-headless"
 ]
 
 [project.optional-dependencies]
