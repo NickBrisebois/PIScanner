@@ -1,15 +1,14 @@
-from typing import Literal
 from gpiozero import OutputDevice
 from time import sleep
 
-class Stepper28BYJ_48:
+class Stepper28BYJ_48Controller:
     """Simple stepper motor control for 28BYJ-48"""
 
     def __init__(self,
-        pin1: int | str = 18,
-        pin2: int | str = 19,
-        pin3: int | str = 20,
-        pin4: int | str = 21
+        pin1: int | str,
+        pin2: int | str,
+        pin3: int | str,
+        pin4: int | str
     ):
         self.pins: list[OutputDevice] = [OutputDevice(pin1), OutputDevice(pin2),
                     OutputDevice(pin3), OutputDevice(pin4)]

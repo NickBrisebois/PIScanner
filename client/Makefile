@@ -6,6 +6,7 @@ PYTHON := $(VENV_DIR)/bin/python
 SERVICE_NAME := piscanner.client
 SERVICE_FILE := $(SERVICE_NAME).service
 INSTALL_DIR := /opt/piscanner
+SERVICE_VENV_DIR := $(INSTALL_DIR)/venv
 SYSTEMD_DIR := /etc/systemd/system
 
 .PHONY: help
@@ -16,60 +17,38 @@ help:
 
 .PHONY: setup
 setup:  # Setup venv
-	$(PYTHON) -m venv $(VENV_DIR)
+	python3 -m venv $(VENV_DIR)
 	$(PIP) install --upgrade pip setuptools wheel
 	$(PIP) install -r requirements.txt
 
 .PHONY: dev-setup
 dev-setup:  ## Setup Development
 	$(PIP) install -r requirements-dev.txt
-	$(PYTHON_VENV) install -e .
+	$(PYTHON) install -e .
+
+.PHONY: dev-install
+dev-install:  ## Install module piscanner.client
+	$(PYTHON) install -e .
+
+.PHONY: dev-run
+dev-run:  ## Run module piscanner.client (as root)
+	sudo $(PYTHON) -m piscanner_client
 
 .PHONY: clean
 clean:  ## Clean up build artifacts and caches
 	rm -rf build/ dist/ .pytest_cache/
 	rm -f $(SERVICE_FILE)
-	find . -type f -name "*.pyc" -delete
-	find . -type d -name "__pycache__" -delete
+	find . -path "./venv*" -prune -o -type f -name "*.pyc" -exec rm -f {} +
+	find . -path "./venv*" -prune -o -type d -name "__pycache__" -exec rm -rf {} +
 
 .PHONY: build
 build: clean  ## Build piscanner client
 	$(PIP) install --upgrade build
 	$(PYTHON) -m build
 
-.PHONY: gen-service
-gen-service:  ## Generate systemd service file
-	@echo "Creating systemd service file $(SERVICE_FILE)..."
-	@echo "[Unit]" > $@
-	@echo "Description=Piscanner Service Client" >> $@
-	@echo "After=network.target" >> $@
-	@echo "Wants=network.target" >> $@
-	@echo "" >> $@
-	@echo "[Service]" >> $@
-	@echo "Type=simple" >> $@
-	@echo "User=root" >> $@
-	@echo "ExecStart=$(PYTHON_VENV) -m piscanner" >> $@
-	@echo "" >> $@
-	@echo "[Install]" >> $@
-	@echo "WantedBy=multi-user.target" >> $@
-
 .PHONY: install
-install: build  ## Install piscanner client
-	$(PYTHON) -m build
-	sudo mkdir -p $(INSTALL_DIR)
-	sudo cp dist/*.whl $(INSTALL_DIR)
-	sudo $(PYTHON) -m pip install $(INSTALL_DIR)/*.whl
-	sudo cp $(SERVICE_FILE) $(SYSTEMD_DIR)
-	sudo systemctl daemon-reload
-	sudo systemctl enable $(SERVICE_NAME)
-	sudo systemctl start $(SERVICE_NAME)
-
-.PHONY: uninstall
-uninstall:  ## Uninstall piscanner client
-	sudo systemctl stop $(SERVICE_NAME)
-	sudo systemctl disable $(SERVICE_NAME)
-	sudo rm -f $(SYSTEMD_DIR)/$(SERVICE_FILE)
-	sudo rm -rf $(INSTALL_DIR)
+install:
+	$(PIP) install -e .
 
 .PHONY: format
 format:  ## Format code
