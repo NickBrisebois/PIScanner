@@ -20,12 +20,14 @@ class WebcamController:
         os.makedirs(self._capture_dir, exist_ok=True)
 
 
-    def capture_image(self):
+    def capture_image(self, capture_dir: str):
+        os.makedirs(capture_dir, exist_ok=True)
+
         ret, frame = self._cam.read()
         if not ret:
             raise WebcamHandlerException("Failed to capture image")
 
-        file_name = f"{self._capture_dir}/cap_{int(time.time())}.jpg"
+        file_name = f"{self._capture_dir}/{capture_dir}/cap_{int(time.time())}.jpg"
         _ = cv2.imwrite(file_name, frame)
 
         print(f"Image saved to {file_name}")

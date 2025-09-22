@@ -1,4 +1,6 @@
+import os
 from time import sleep
+import time
 from gpiozero import Button, LED
 
 from .hardware.webcam import WebcamController
@@ -33,10 +35,19 @@ class PIScannerClient:
 
     def start_capture(self, num_images: int):
         print("Starting capture...")
+        capture_dir = time.strftime("%Y%m%d-%H%M%S")
+        os.makedirs(capture_dir, exist_ok=True)
 
-        for _ in range(num_images):
-            _ = self._webcam_controller.capture_image()
-            self._stepper_controller.rotate(50, speed=0.005)
+        degrees_per_image = 360 / num_images
+
+        for i in range(num_images):
+            _ = self._webcam_controller.capture_image(capture_dir=capture_dir)
+            sleep(1)
+
+            # rotate plate if there are more images to capture
+            if i+1 < num_images:
+                self._stepper_controller.rotate(degrees_per_image, speed=0.001)
+
             print("Image captured and stepper rotated")
 
         print("Capture complete")
@@ -45,8 +56,10 @@ class PIScannerClient:
         try:
             while True:
                 if self._button.is_pressed:
-                    self.start_capture(10)
+                    self.start_capture(15)
                 sleep(0.1)
+        except KeyboardInterrupt:
+            print("Quitting...")
         except Exception as e:
             print(f"Unexpected error: {e}")
 
