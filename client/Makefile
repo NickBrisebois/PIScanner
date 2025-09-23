@@ -17,7 +17,7 @@ help:
 
 .PHONY: setup
 setup:  # Setup venv
-	# python3 -m venv $(VENV_DIR)
+	python3 -m venv $(VENV_DIR)
 	$(PIP) install --upgrade pip setuptools wheel
 	$(PIP) install -r requirements.txt
 
@@ -43,8 +43,8 @@ build: clean  ## Build piscanner client
 	$(PYTHON) -m build
 
 .PHONY: install
-install:
-	$(PIP) install -e .
+install:  ## Install piscanner client to system
+	sudo python ./install.py
 
 .PHONY: format
 format:  ## Format code
