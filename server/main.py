@@ -12,7 +12,7 @@ from views.images import router as images_router
 
 
 def startup(settings: PiScannerServerSettings, logger: Logger):
-    datastore_path: str = settings.datastore_path
+    datastore_path: str = os.path.expanduser(settings.datastore_path)
 
     # Initialize image storage directory
     logger.info(f"Initializing image storage directory at {datastore_path}")

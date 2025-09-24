@@ -19,10 +19,10 @@ async def upload_image(
     settings: Annotated[PiScannerServerSettings, Depends(get_settings)]
 ) -> ImageUploadResponse:
     # Create the datastore directory if it doesn't exist
-    datastore_path = Path(settings.datastore_path).joinpath(scan_id)
+    datastore_path = Path(settings.datastore_path).expanduser().joinpath(scan_id)
     datastore_path.mkdir(parents=True, exist_ok=True)
 
-    new_filename = f"datetime.now().timestamp().jpg"
+    new_filename = f"{datetime.now().timestamp()}.jpg"
     out_file = f"{datastore_path}/{new_filename}"
     content = await file.read()
     with open(out_file, "wb") as f:
