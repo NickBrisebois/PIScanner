@@ -2,6 +2,7 @@ import os
 from time import sleep
 import time
 from gpiozero import Button, LED
+from piscanner_client.external.piscanner_server import PIScannerServerAPI
 
 from .hardware.webcam import WebcamController
 from .hardware.stepper import Stepper28BYJ_48Controller
@@ -17,11 +18,14 @@ class PIScannerClient:
     _led_pin: str | int
     _stepper_pins: list[str]
 
+    _piscanner_api: PIScannerServerAPI
+
     def __init__(
         self,
         start_button_pin: str,
         led_pin: str,
-        stepper_pins: list[str]
+        stepper_pins: list[str],
+        piscanner_server_uri: str,
     ) -> None:
         self._start_button_pin = start_button_pin
         self._led_pin = led_pin
@@ -31,17 +35,20 @@ class PIScannerClient:
         self._led = LED(self._led_pin)
         self._stepper_controller = Stepper28BYJ_48Controller(*self._stepper_pins)
         self._webcam_controller = WebcamController()
+        self._piscanner_api = PIScannerServerAPI(piscanner_server_uri)
+
         print("GPIO pins initialized successfully!")
 
     def start_capture(self, num_images: int):
         print("Starting capture...")
-        capture_dir = time.strftime("%Y%m%d-%H%M%S")
-        os.makedirs(capture_dir, exist_ok=True)
+        scan_id = time.strftime("%Y%m%d-%H%M%S")
+        os.makedirs(scan_id, exist_ok=True)
 
         degrees_per_image = 360 / num_images
 
         for i in range(num_images):
-            _ = self._webcam_controller.capture_image(capture_dir=capture_dir)
+            cap_image = self._webcam_controller.capture_image(capture_dir=scan_id)
+            self._piscanner_api.post_image(scan_id=scan_id, image=cap_image)
             sleep(1)
 
             # rotate plate if there are more images to capture

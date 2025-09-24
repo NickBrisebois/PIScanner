@@ -13,7 +13,7 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart={venv_dir}/bin/python3 -m piscanner_client
+ExecStart={venv_dir}/bin/python3 -m piscanner_client --server-uri=http://192.168.100.205:8000
 Restart=always
 
 [Install]
@@ -33,11 +33,14 @@ def build_and_install(venv_dir: str):
     print("Creating virtual environment at", venv_dir)
     venv.create(venv_dir, with_pip=True)
 
+    print("Installing build dependencies")
+    _ = os.system(f"{venv_dir}/bin/python -m pip install build")
+
     print("Building...")
     _ = os.system(f"{venv_dir}/bin/python -m build")
 
     print("Installing...")
-    _ = os.system(f"{venv_dir}/bin/pip install dist/*.whl")
+    _ = os.system(f"{venv_dir}/bin/pip install --force-reinstall dist/*.whl")
 
 
 if __name__ == "__main__":

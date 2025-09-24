@@ -1,3 +1,5 @@
 gpiozero
 opencv-python-headless
 lgpio
+requests
+build

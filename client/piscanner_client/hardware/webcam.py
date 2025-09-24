@@ -20,7 +20,7 @@ class WebcamController:
         os.makedirs(self._capture_base_dir, exist_ok=True)
 
 
-    def capture_image(self, capture_dir: str):
+    def capture_image(self, capture_dir: str) -> bytes:
         capture_dir = os.path.join(self._capture_base_dir, capture_dir)
         os.makedirs(capture_dir, exist_ok=True)
 
@@ -28,8 +28,15 @@ class WebcamController:
         if not ret:
             raise WebcamHandlerException("Failed to capture image")
 
+        # Encode frame to JPEG bytes
+        ret_encode, buffer = cv2.imencode('.jpg', frame)
+        if not ret_encode:
+            raise WebcamHandlerException("Failed to encode image")
+
+        image_bytes = buffer.tobytes()
+
         file_name = f"{capture_dir}/cap_{int(time.time())}.jpg"
         _ = cv2.imwrite(file_name, frame)
 
         print(f"Image saved to {file_name}")
-        return file_name
+        return image_bytes
