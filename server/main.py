@@ -7,8 +7,8 @@ import uvicorn
 
 from core.loghandler import LogHandler
 from core.settings import PiScannerServerSettings, get_settings
-from views.base import router as base_router
-from views.images import router as images_router
+from api.base import router as base_router
+from api.images import router as images_router
 
 
 def startup(settings: PiScannerServerSettings, logger: Logger):

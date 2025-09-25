@@ -1,0 +1,19 @@
+meta {
+  name: Get Images for ScanID
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{BASE_URL}}/images/:scan_id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  scan_id: 20250924-183556
+}
+
+settings {
+  encodeUrl: true
+}
