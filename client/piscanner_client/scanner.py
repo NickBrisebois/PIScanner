@@ -47,8 +47,8 @@ class PIScannerClient:
         degrees_per_image = 360 / num_images
 
         for i in range(num_images):
-            cap_image = self._webcam_controller.capture_image(capture_dir=scan_id)
-            self._piscanner_api.post_image(scan_id=scan_id, image=cap_image)
+            cap_bytes = self._webcam_controller.capture_image(capture_dir=scan_id)
+            self._piscanner_api.post_image(scan_id=scan_id, image=cap_bytes)
             sleep(1)
 
             # rotate plate if there are more images to capture

@@ -28,15 +28,8 @@ class WebcamController:
         if not ret:
             raise WebcamHandlerException("Failed to capture image")
 
-        # Encode frame to JPEG bytes
-        ret_encode, buffer = cv2.imencode('.jpg', frame)
+        ret_encode, buffer = cv2.imencode(".jpg", frame)
         if not ret_encode:
             raise WebcamHandlerException("Failed to encode image")
 
-        image_bytes = buffer.tobytes()
-
-        file_name = f"{capture_dir}/cap_{int(time.time())}.jpg"
-        _ = cv2.imwrite(file_name, frame)
-
-        print(f"Image saved to {file_name}")
-        return image_bytes
+        return buffer.tobytes()
