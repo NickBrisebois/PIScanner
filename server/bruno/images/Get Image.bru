@@ -1,0 +1,20 @@
+meta {
+  name: Get Image
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{BASE_URL}}/images/:scan_id/:image_id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  scan_id: 
+  image_id: 
+}
+
+settings {
+  encodeUrl: true
+}

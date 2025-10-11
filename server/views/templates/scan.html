@@ -1,0 +1,153 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Scan Images</title>
+        <style>
+            body {
+                margin: 20px;
+            }
+            .image-container {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 20px;
+                margin-top: 20px;
+            }
+            .image-item {
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                padding: 10px;
+                max-width: 300px;
+            }
+            .image-item img {
+                max-width: 100%;
+                height: auto;
+                border-radius: 4px;
+            }
+            .image-item .filename {
+                font-size: 12px;
+                color: #666;
+                margin-top: 5px;
+            }
+            .status {
+                padding: 10px;
+                border-radius: 4px;
+                margin-bottom: 20px;
+            }
+            .status.connected {
+                background-color: #d4edda;
+                color: #155724;
+                border: 1px solid #c3e6cb;
+            }
+            .status.disconnected {
+                background-color: #f8d7da;
+                color: #721c24;
+                border: 1px solid #f5c6cb;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Scan Images</h1>
+        <p>Scan ID: <strong>{{ scan_id }}</strong></p>
+
+        <div id="status" class="status disconnected">
+            Connecting to real-time updates...
+        </div>
+
+        <div id="imageContainer" class="image-container">
+            <!-- images container -->
+        </div>
+
+        <script type="text/javascript">
+            const scanId = "{{ scan_id }}";
+            let scanSocket = null;
+            const statusDiv = document.getElementById("status");
+            const imageContainer = document.getElementById("imageContainer");
+
+            function updateStatus(message, isConnected) {
+                statusDiv.textContent = message;
+                statusDiv.className = `status ${isConnected ? "connected" : "disconnected"}`;
+            }
+
+            function addImage(imageData) {
+                const imageItem = document.createElement("div");
+                imageItem.className = "image-item";
+
+                const img = document.createElement("img");
+                img.src = imageData.image_url;
+                img.alt = imageData.filename;
+                img.onerror = function () {
+                    this.src =
+                        "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM5OTkiPkltYWdlIG5vdCBmb3VuZDwvdGV4dD48L3N2Zz4=";
+                };
+
+                const filename = document.createElement("div");
+                filename.className = "filename";
+                filename.textContent = imageData.filename;
+
+                imageItem.appendChild(img);
+                imageItem.appendChild(filename);
+
+                imageContainer.insertBefore(
+                    imageItem,
+                    imageContainer.firstChild,
+                );
+            }
+
+            async function loadExistingImages() {
+                try {
+                    const response = await fetch(`/images/${scanId}`);
+                    const data = await response.json();
+
+                    imageContainer.innerHTML = "";
+
+                    data.images.sort((a, b) => b.timestamp - a.timestamp);
+                    data.images.forEach((image) => {
+                        addImage({
+                            filename: image.filename,
+                            image_url: `/images/${scanId}/${image.filename}`,
+                        });
+                    });
+
+                    console.log(`Loaded ${data.images.length} existing images`);
+                } catch (error) {
+                    console.error("Failed to load existing images:", error);
+                }
+            }
+
+            function connectWebSocket() {
+                const wsUrl = `ws://localhost:8000/ws/scan/${scanId}`;
+                scanSocket = new WebSocket(wsUrl);
+
+                scanSocket.onopen = function () {
+                    updateStatus("Connected - watching for new images", true);
+                };
+
+                scanSocket.onmessage = function (event) {
+                    const data = JSON.parse(event.data);
+                    console.log("Received WebSocket message:", data);
+
+                    if (data.message_type === "NEW_IMAGE") {
+                        addImage(data);
+                        updateStatus(
+                            `Connected - new image: ${data.filename}`,
+                            true,
+                        );
+                    }
+                };
+
+                scanSocket.onclose = function (event) {
+                    updateStatus("Disconnected from image updates", false);
+                };
+
+                scanSocket.onerror = function (error) {
+                    updateStatus("Connection error", false);
+                };
+            }
+
+            updateStatus("Loading existing images...", false);
+            loadExistingImages().then(() => {
+                connectWebSocket();
+            });
+        </script>
+    </body>
+</html>

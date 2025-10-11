@@ -1,5 +1,7 @@
 import logging
 
+from fastapi import Request
+
 
 class LogHandler:
     __logger: logging.Logger | None = None
@@ -12,3 +14,7 @@ class LogHandler:
             cls.__logger.addHandler(logging.StreamHandler())
 
         return cls.__logger
+
+
+def get_logger(request: Request) -> logging.Logger:
+    return LogHandler.get_logger(request.scope["route"].name)
