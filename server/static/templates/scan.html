@@ -2,10 +2,11 @@
 <html>
     <head>
         <title>Scan Images</title>
+        <link
+            rel="stylesheet"
+            href="{{ request.url_for('static', path='style/base.css') }}"
+        />
         <style>
-            body {
-                margin: 20px;
-            }
             .image-container {
                 display: flex;
                 flex-wrap: wrap;

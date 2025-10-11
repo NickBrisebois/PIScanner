@@ -1,0 +1,18 @@
+<!doctype html>
+<html>
+    <head>
+        <title>All Scans</title>
+        <link
+            rel="stylesheet"
+            href="{{ request.url_for('static', path='style/base.css') }}"
+        />
+    </head>
+    <body>
+        <h1>All Scans</h1>
+        <ul>
+            {% for scan in scans %}
+            <li>{{ scan.id }} - {{ scan.created_at }}</li>
+            {% endfor %}
+        </ul>
+    </body>
+</html>

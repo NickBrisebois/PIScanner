@@ -2,7 +2,10 @@ from contextlib import asynccontextmanager
 from logging import Logger
 import os
 import fastapi
+from pydantic.types import DirectoryPath
 import uvicorn
+
+from fastapi.staticfiles import StaticFiles
 
 from core.loghandler import LogHandler
 from core.settings import PiScannerServerSettings, get_settings
@@ -32,6 +35,8 @@ def get_lifespan(settings: PiScannerServerSettings, logger: Logger):
 
 def get_application(settings: PiScannerServerSettings, logger: Logger):
     app = fastapi.FastAPI(lifespan=get_lifespan(settings, logger))
+
+    app.mount("/static", StaticFiles(directory="static"), name="static")
 
     # Backend routes
     app.include_router(base_router)
